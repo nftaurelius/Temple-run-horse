@@ -1,0 +1,17 @@
+{
+  "name": "galop-cross-country",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Galop! Cross Country Run: eindeloze paarden-runner voor iPhone en browser",
+  "scripts": {
+    "start": "http-server www -p 8080 -c-1",
+    "cap:sync": "cap sync ios",
+    "cap:open": "cap open ios"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
+    "http-server": "^14.1.1"
+  }
+}

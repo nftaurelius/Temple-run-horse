@@ -1,0 +1,9 @@
+{
+  "appId": "com.nftaurelius.galop",
+  "appName": "Galop!",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#1e4630"
+  }
+}

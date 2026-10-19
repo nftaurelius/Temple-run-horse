@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Galop! Cross Country</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="description" content="Galop! — een eindeloze cross-country run met paard en ruiter.">
+<meta name="theme-color" content="#1e4630">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Galop!">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<!--APP-->
+<canvas id="game" aria-label="Spelwereld"></canvas>
+
+<div id="ui">
+  <div class="toasts" data-bind="toasts" aria-live="polite"></div>
+
+  <!-- Laadscherm -->
+  <section id="loading" class="screen center-screen">
+    <div class="logo"><span>Galop!</span><small>Cross Country Run</small></div>
+    <div class="loader" role="progressbar" aria-label="Laden"></div>
+  </section>
+
+  <!-- Hoofdmenu -->
+  <section id="menu" class="screen" hidden>
+    <header class="topbar">
+      <div class="coins-pill" aria-label="Munten"><i class="coin-ico"></i><b data-bind="coins">0</b></div>
+      <button class="icon-btn" data-action="settings" aria-label="Instellingen">
+        <svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm8.6 2.2-1.8-.3a7 7 0 0 0-.7-1.7l1-1.5a.8.8 0 0 0-.1-1l-1.2-1.2a.8.8 0 0 0-1-.1l-1.5 1a7 7 0 0 0-1.7-.7l-.3-1.8a.8.8 0 0 0-.8-.7h-1.6a.8.8 0 0 0-.8.7l-.3 1.8a7 7 0 0 0-1.7.7l-1.5-1a.8.8 0 0 0-1 .1L4.4 6.2a.8.8 0 0 0-.1 1l1 1.5a7 7 0 0 0-.7 1.7l-1.8.3a.8.8 0 0 0-.7.8v1.6c0 .4.3.7.7.8l1.8.3c.2.6.4 1.2.7 1.7l-1 1.5a.8.8 0 0 0 .1 1l1.2 1.2c.3.3.7.3 1 .1l1.5-1c.5.3 1.1.5 1.7.7l.3 1.8c.1.4.4.7.8.7h1.6c.4 0 .7-.3.8-.7l.3-1.8c.6-.2 1.2-.4 1.7-.7l1.5 1c.3.2.7.2 1-.1l1.2-1.2c.3-.3.3-.7.1-1l-1-1.5c.3-.5.5-1.1.7-1.7l1.8-.3c.4-.1.7-.4.7-.8v-1.6a.8.8 0 0 0-.7-.8Z"/></svg>
+      </button>
+    </header>
+    <div class="logo menu-logo"><span>Galop!</span><small>Cross Country Run</small></div>
+    <div class="menu-bottom">
+      <div class="difficulty ui-block">
+        <button class="arrow-btn" data-action="diff-prev" aria-label="Vorige moeilijkheid">
+          <svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg>
+        </button>
+        <div class="diff-info">
+          <div class="diff-name"><span data-bind="diffName">Pony</span><em class="mult-badge" data-bind="diffMult">×1</em></div>
+          <div class="diff-sub" data-bind="diffSub">Makkelijk</div>
+        </div>
+        <button class="arrow-btn" data-action="diff-next" aria-label="Volgende moeilijkheid">
+          <svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg>
+        </button>
+      </div>
+      <button class="btn btn-play" data-action="play"><span>Start rit</span></button>
+      <nav class="menu-nav">
+        <button class="btn btn-small" data-action="stable">
+          <svg viewBox="0 0 24 24"><path d="M3 21V9l9-6 9 6v12h-6v-7H9v7H3Z"/></svg>Stal
+        </button>
+        <button class="btn btn-small" data-action="riders">
+          <svg viewBox="0 0 24 24"><path d="M12 3a5 5 0 0 0-5 5v1h10V8a5 5 0 0 0-5-5Zm-6 7v2h12v-2H6Zm2 4a4 4 0 0 0 8 0H8Zm-3 7c0-3 3-5 7-5s7 2 7 5H5Z"/></svg>Ruiters
+        </button>
+        <button class="btn btn-small" data-action="upgrades">
+          <svg viewBox="0 0 24 24"><path d="m12 3 7 8h-4v10H9V11H5l7-8Z"/></svg>Upgrades
+        </button>
+      </nav>
+      <p class="install-hint" data-bind="installHint" hidden>Installeer op je iPhone: tik op <b>Deel</b> en kies <b>Zet op beginscherm</b>.</p>
+    </div>
+  </section>
+
+  <!-- HUD tijdens het rijden -->
+  <section id="hud" class="screen hud" hidden>
+    <div class="hud-top">
+      <button class="icon-btn hud-pause" data-action="pause" aria-label="Pauze">
+        <svg viewBox="0 0 24 24"><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg>
+      </button>
+      <div class="hud-score">
+        <b data-bind="score">0</b>
+        <span class="hud-meta"><span data-bind="meters">0 m</span><em class="mult-badge" data-bind="mult">×1</em></span>
+      </div>
+      <div class="coins-pill"><i class="coin-ico"></i><b data-bind="runCoins">0</b></div>
+    </div>
+    <div class="powerups" data-bind="powerups"></div>
+    <div class="turn-hint" data-bind="turnHint" hidden></div>
+    <div class="tut-hint" data-bind="tutHint" hidden></div>
+  </section>
+
+  <!-- Pauze -->
+  <section id="pause" class="screen dim center-screen" hidden>
+    <div class="card">
+      <h2>Gepauzeerd</h2>
+      <div class="toggles">
+        <button class="toggle" data-action="toggle-sound" data-bind="soundToggle">Geluid: aan</button>
+        <button class="toggle" data-action="toggle-music" data-bind="musicToggle">Muziek: aan</button>
+      </div>
+      <button class="btn btn-play" data-action="resume"><span>Verder rijden</span></button>
+      <button class="btn btn-ghost" data-action="quit">Stoppen</button>
+    </div>
+  </section>
+
+  <!-- Einde van de rit -->
+  <section id="over" class="screen dim center-screen" hidden>
+    <div class="card scorecard">
+      <div class="rosette" data-bind="rosette" hidden>Nieuw record!</div>
+      <h2 data-bind="overTitle">Weigering!</h2>
+      <dl class="stats">
+        <div><dt>Afstand</dt><dd data-bind="oMeters">0 m</dd></div>
+        <div><dt>Score</dt><dd data-bind="oScore">0</dd></div>
+        <div><dt>Beste</dt><dd data-bind="oBest">0</dd></div>
+      </dl>
+      <div class="earn">
+        <div class="earn-row"><span>Munten</span><b data-bind="oCoins">0</b></div>
+        <div class="earn-row"><span>Vermenigvuldiger</span><b data-bind="oMult">×1</b></div>
+        <div class="earn-row" data-bind="oHorseRow" hidden><span>Paardbonus</span><b data-bind="oHorse">+0%</b></div>
+        <div class="earn-row total"><span>Verdiend</span><b><i class="coin-ico"></i><span data-bind="oEarned">0</span></b></div>
+      </div>
+      <p class="unlock-msg" data-bind="oUnlock" hidden></p>
+      <button class="btn btn-gold" data-action="continue" data-bind="oContinue" hidden>Doorgaan</button>
+      <button class="btn btn-play" data-action="retry"><span>Opnieuw</span></button>
+      <button class="btn btn-ghost" data-action="menu">Menu</button>
+    </div>
+  </section>
+
+  <!-- Stal en ruiters (zelfde layout) -->
+  <section id="shop" class="screen shop" hidden>
+    <header class="topbar">
+      <button class="icon-btn" data-action="back" aria-label="Terug">
+        <svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg>
+      </button>
+      <h2 data-bind="shopTitle">Stal</h2>
+      <div class="coins-pill"><i class="coin-ico"></i><b data-bind="coins">0</b></div>
+    </header>
+    <div class="shop-sheet ui-block">
+      <div class="shop-detail">
+        <div>
+          <h3 data-bind="shopName">Bruintje</h3>
+          <p class="shop-sub" data-bind="shopSub">Bruin</p>
+          <p class="perk" data-bind="shopPerk"></p>
+        </div>
+        <button class="btn btn-gold btn-buy" data-action="shop-buy" data-bind="shopBuy">Kies</button>
+      </div>
+      <div class="card-row" data-bind="shopList" role="listbox"></div>
+    </div>
+  </section>
+
+  <!-- Upgrades -->
+  <section id="upgrades" class="screen" hidden>
+    <header class="topbar">
+      <button class="icon-btn" data-action="back" aria-label="Terug">
+        <svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg>
+      </button>
+      <h2>Upgrades</h2>
+      <div class="coins-pill"><i class="coin-ico"></i><b data-bind="coins">0</b></div>
+    </header>
+    <div class="upgrade-list ui-block" data-bind="upgradeList"></div>
+  </section>
+
+  <!-- Instellingen -->
+  <section id="settings" class="screen" hidden>
+    <header class="topbar">
+      <button class="icon-btn" data-action="back" aria-label="Terug">
+        <svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg>
+      </button>
+      <h2>Instellingen</h2>
+      <span class="topbar-spacer"></span>
+    </header>
+    <div class="settings-body ui-block">
+      <div class="toggles">
+        <button class="toggle" data-action="toggle-sound" data-bind="soundToggle">Geluid: aan</button>
+        <button class="toggle" data-action="toggle-music" data-bind="musicToggle">Muziek: aan</button>
+      </div>
+      <div class="howto">
+        <h3>Besturing</h3>
+        <ul>
+          <li><b>Veeg links/rechts</b> om van baan te wisselen.</li>
+          <li><b>Veeg omhoog</b> om te springen over boomstammen, hagen en sloten.</li>
+          <li><b>Veeg omlaag</b> om te bukken onder laaghangende takken.</li>
+          <li><b>Bij een bocht</b> veeg je de kant op van het bord.</li>
+          <li>Op een computer: pijltjestoetsen of WASD.</li>
+        </ul>
+        <h3>Op je iPhone zetten</h3>
+        <ol>
+          <li>Open deze pagina in <b>Safari</b>.</li>
+          <li>Tik op <b>Deel</b> (vierkantje met pijl).</li>
+          <li>Kies <b>Zet op beginscherm</b> en tik op <b>Voeg toe</b>.</li>
+        </ol>
+      </div>
+      <div class="stats-small" data-bind="statsSmall"></div>
+      <button class="btn btn-ghost danger" data-action="reset" data-bind="resetBtn">Voortgang wissen</button>
+    </div>
+  </section>
+</div>
+<!--/APP-->
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
