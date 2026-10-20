@@ -106,6 +106,9 @@ export const MAX_UPGRADE = UPGRADE_COSTS.length;
 
 export const CONTINUE_BASE_COST = 150;
 
+// Na zoveel meter breekt de stier los (per moeilijkheid).
+export const CHASE_START = [350, 300, 250, 200, 160];
+
 export function powerDuration(type, level, horse) {
   const p = POWERUPS[type];
   let d = p.base + p.perLevel * level;

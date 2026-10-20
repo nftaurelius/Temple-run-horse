@@ -2,6 +2,7 @@
 
 import { DIFFICULTIES, HORSES, RIDERS, POWERUPS, UPGRADE_COSTS, MAX_UPGRADE, powerDuration, horseById } from './config.js';
 import { getSave, save, resetSave } from './save.js';
+import { levelTitle, levelMult, rewardFor } from './missions.js';
 
 const nf = new Intl.NumberFormat('nl-NL');
 const fmt = (n) => nf.format(Math.floor(n));
@@ -88,7 +89,18 @@ export class UI {
       case 'stable': this.openShop('horses'); break;
       case 'riders': this.openShop('riders'); break;
       case 'upgrades': this.openUpgrades(); break;
+      case 'missions': this.openMissions(); break;
       case 'settings': this.openSettings(); break;
+      case 'toggle-quality': {
+        const order = ['hoog', 'normaal', 'laag'];
+        const cur = this.save.settings.quality || 'hoog';
+        this.save.settings.quality = order[(order.indexOf(cur) + 1) % order.length];
+        save();
+        g.applyQuality(this.save.settings.quality);
+        this.refreshToggles();
+        this.sound.click();
+        break;
+      }
       case 'back':
         this.sound.click();
         g.setAppearance();
@@ -120,6 +132,7 @@ export class UI {
         if (btn.dataset.armed) {
           this.save = resetSave();
           this.game.save = this.save;
+          this.game.missions.ensure();
           this.game.setAppearance();
           this.diffIndex = 0;
           this.applyDifficulty();
@@ -148,6 +161,51 @@ export class UI {
     this.only('menu');
     this.refreshCoins();
     this.applyDifficulty(false);
+    this.refreshMissionStrip();
+  }
+
+  refreshMissionStrip() {
+    const ms = this.game.missions;
+    const done = ms.active.filter((m) => m.done).length;
+    this.set('lvlNum', ms.level);
+    this.set('lvlTitle', `Niveau ${ms.level} · ${levelTitle(ms.level)}`);
+    this.set('lvlMult', multText(levelMult(ms.level)));
+    this.set('msSummary', done === 3 ? 'Alles klaar! Rij een rit om omhoog te gaan' : `${done} van 3 opdrachten · tik voor details`);
+    this.$('msDots')[0].innerHTML = ms.active.map((m) => `<i class="${m.done ? 'on' : ''}"></i>`).join('');
+  }
+
+  // Lijst met opdrachten; run = statistieken van de huidige rit (optioneel).
+  renderMissions(el, run = null, compact = false, banked = false) {
+    const ms = this.game.missions;
+    el.innerHTML = ms.active.map((m) => {
+      const prog = ms.progress(m, run || {}, banked);
+      const pct = Math.round((prog / m.target) * 100);
+      return `<div class="mission ${m.done ? 'done' : ''}">
+        <span class="check">${m.done ? '✓' : ''}</span>
+        <span class="mt"><span>${ms.text(m)}</span>
+          <span class="bar"><i style="width:${pct}%"></i></span>
+          ${compact ? '' : `<small>${fmt(prog)} / ${fmt(m.target)} · beloning <i class="coin-ico"></i> ${fmt(rewardFor(ms.level))}</small>`}
+        </span>
+      </div>`;
+    }).join('');
+  }
+
+  openMissions() {
+    this.sound.click();
+    this.only('missions');
+    this.refreshCoins();
+    this.refreshMissionStrip();
+    this.renderMissions(this.$('missionList')[0]);
+  }
+
+  setDanger(v) {
+    const el = this.$('danger')[0];
+    if (!el) return;
+    const q = Math.round(v * 20) / 20;
+    if (this.dangerV === q) return;
+    this.dangerV = q;
+    el.style.opacity = q;
+    el.classList.toggle('pulse', q > 0.6);
   }
 
   applyDifficulty(store = true) {
@@ -193,6 +251,7 @@ export class UI {
       el.textContent = `Muziek: ${s.music ? 'aan' : 'uit'}`;
       el.classList.toggle('off', !s.music);
     }
+    for (const el of this.$('qualityToggle')) el.textContent = `Graphics: ${s.quality || 'hoog'}`;
   }
 
   // ---------- HUD ----------
@@ -272,8 +331,9 @@ export class UI {
   }
 
   // ---------- pauze / einde ----------
-  showPause() {
+  showPause(game) {
     this.refreshToggles();
+    this.renderMissions(this.$('pauseMissions')[0], game?.p.stats, true);
     this.only('hud', 'pause');
   }
 
@@ -284,7 +344,12 @@ export class UI {
     const reason = this.game.p.crashReason;
     const kind = this.game.p.crashObstacle?.kind;
     const titles = { jump: 'Weigering!', duck: 'Au, een tak!', block: 'Botsing!', ditch: 'In de sloot!' };
-    this.set('overTitle', reason === 'turn' ? 'Bocht gemist!' : titles[kind] || 'Gevallen!');
+    this.set('overTitle', reason === 'turn' ? 'Bocht gemist!' : reason === 'caught' ? 'Gepakt door de stier!' : titles[kind] || 'Gevallen!');
+    this.setDanger(0);
+    const lv = this.$('oLevel')[0];
+    lv.hidden = !r.leveled;
+    if (r.leveled) lv.textContent = `Niveau ${r.level} behaald: ${levelTitle(r.level)}! Nieuwe opdrachten wachten.`;
+    this.renderMissions(this.$('overMissions')[0], r.leveled ? null : this.game.p.stats, true, true);
     this.set('oMeters', `${fmt(r.meters)} m`);
     this.set('oScore', fmt(r.score));
     this.set('oBest', fmt(r.best));

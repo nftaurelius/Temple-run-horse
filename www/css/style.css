@@ -706,3 +706,113 @@ svg { width: 24px; height: 24px; fill: currentColor; }
   .menu-bottom { gap: 8px; }
   .btn-play { padding: 10px; font-size: 24px; }
 }
+
+/* ---------- gevaar: de stier is dichtbij ---------- */
+.danger-vignette {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 45%, rgba(214, 54, 46, 0) 55%, rgba(214, 54, 46, 0.55) 100%);
+  transition: opacity 0.2s;
+  z-index: 1;
+}
+.danger-vignette.pulse { animation: danger 0.6s ease-in-out infinite alternate; }
+@keyframes danger { from { filter: brightness(1); } to { filter: brightness(1.6); } }
+
+/* ---------- opdrachten ---------- */
+.mission-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  border: none;
+  border-radius: 18px;
+  padding: 8px 14px 8px 8px;
+  background: rgba(18, 48, 31, 0.82);
+  color: var(--paper);
+  text-align: left;
+  font-family: var(--font-body);
+  cursor: pointer;
+  box-shadow: inset 0 0 0 2px rgba(255, 247, 230, 0.15);
+}
+.mission-strip:active { transform: scale(0.98); }
+.lvl-badge {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--white);
+  background:
+    radial-gradient(circle, var(--rosette) 0 56%, transparent 57%),
+    repeating-conic-gradient(#3b74d4 0 12deg, var(--rosette) 12deg 24deg);
+}
+.lvl-badge.big { width: 64px; height: 64px; font-size: 28px; }
+.ms-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ms-text b { font-family: var(--font-display); font-weight: 400; font-size: 17px; }
+.ms-text small { font-size: 12px; font-weight: 700; opacity: 0.85; }
+.ms-dots { display: flex; gap: 5px; }
+.ms-dots i { width: 12px; height: 12px; border-radius: 50%; background: rgba(255, 255, 255, 0.25); }
+.ms-dots i.on { background: var(--gold); }
+
+.missions-body {
+  margin: 16px auto 0;
+  width: 100%;
+  max-width: 520px;
+  background: var(--paper);
+  border-radius: 22px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  touch-action: pan-y;
+}
+.level-card { display: flex; align-items: center; gap: 14px; }
+.level-card h3 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 22px; color: var(--leather); }
+.level-card p { margin: 2px 0 0; font-weight: 700; color: var(--ink-soft); font-size: 14px; }
+.missions-note { margin: 0; font-size: 13px; font-weight: 700; color: var(--ink-soft); }
+
+.mission-list { display: flex; flex-direction: column; gap: 10px; }
+.mission {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: var(--white);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+.mission .check {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--paper-dim);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: var(--white);
+}
+.mission.done .check { background: var(--meadow); border-color: var(--meadow); }
+.mt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; font-weight: 700; font-size: 14px; }
+.mt small { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.mt small .coin-ico { width: 13px; height: 13px; }
+.bar { height: 7px; border-radius: 99px; background: var(--paper-dim); overflow: hidden; }
+.bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--meadow), #7cc46e); border-radius: 99px; }
+.mission.done .mt > span:first-child { text-decoration: line-through; opacity: 0.6; }
+.mission-list.compact .mission { padding: 7px 10px; }
+.mission-list.compact .mt { font-size: 13px; }
+.level-msg { background: var(--rosette); }
+
+/* lange panelen scrollen binnen het scherm in plaats van eroverheen te groeien */
+.settings-body, .upgrade-list, .missions-body {
+  flex: 0 1 auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.settings-body > .toggle { flex: none; }

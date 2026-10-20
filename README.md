@@ -5,6 +5,10 @@ Galoppeer over boomstammen, hagen en sloten, buk onder laaghangende takken, plon
 rijd over bruggen langs watervallen en neem de bochten op tijd. Verzamel munten om nieuwe paarden,
 ruiters en upgrades vrij te spelen.
 
+Na een paar honderd meter breekt **Brutus de stier** los en zit hij je op de hielen. Hoe verder je komt,
+hoe dichter hij achter je zit, terwijl je paard steeds sneller gaat. Onderweg proberen vogels, een
+cameradrone, vlinders, een luchtballon en wegwaaiende spullen je af te leiden, en het publiek juicht je toe bij de sprongen.
+
 Het spel draait volledig in de browser (Three.js, WebGL) en is te installeren op je iPhone als app.
 
 ## Spelen
@@ -25,7 +29,18 @@ Het spel draait volledig in de browser (Three.js, WebGL) en is te installeren op
 - **Boom of rotsblok in je baan**: uitwijken naar een andere baan.
 - **Hooibalen**: springen of uitwijken.
 - **Waterbak**: je kunt erdoorheen, maar je gaat langzamer.
+- **Modderpoel**: springen, anders struikel je.
 - **Bocht of T-splitsing**: veeg op tijd de goede kant op, anders weigert je paard bij de haag.
+
+Elke sprong heeft een **nummerbord** en een rode vlag rechts en een witte vlag links, net als op een echt cross-country parcours.
+
+### Struikelen en de stier
+
+- Raak je een balk net met je hoeven, schuur je tijdens het wisselen van baan langs een boom of hooibaal, of rijd je door modder, dan **struikel** je. Je gaat even langzamer.
+- Na 160 tot 350 meter (afhankelijk van de moeilijkheid) breekt **Brutus de stier** los.
+- Struikel je, dan zit hij je meteen op de hielen. Struikel je nóg een keer terwijl hij zo dichtbij is, dan ben je **gepakt**.
+- Hoe verder je komt, hoe dichter hij standaard achter je loopt en hoe trager je weer uitloopt. Af en toe doet hij een uitval naar voren.
+- Een rode rand op het scherm waarschuwt je als hij dichtbij is. De bodyprotector beschermt je één keer, en met de galop-spurt laat je hem ver achter je.
 
 ### Power-ups
 
@@ -38,6 +53,12 @@ Het spel draait volledig in de browser (Three.js, WebGL) en is te installeren op
 
 Met munten koop je **upgrades** waardoor power-ups langer duren.
 
+### Opdrachten
+
+Er staan altijd drie opdrachten klaar, zoals "Rijd 800 m in één rit", "Plons 3 keer door het water" of
+"Blijf 300 m voor de stier uit". Elke voltooide opdracht levert munten op. Heb je ze alle drie gehaald, dan ga je
+een **ruitersniveau** omhoog (Beginner, Manegeruiter, Buitenrijder, …, Legende). Elk niveau geeft +0,1× extra op je score en munten.
+
 ### Vermenigvuldigers en voortgang
 
 - Elke **moeilijkheid** heeft een eigen vermenigvuldiger voor score en munten:
@@ -45,6 +66,7 @@ Met munten koop je **upgrades** waardoor power-ups langer duren.
 - Moeilijkere niveaus speel je vrij door ver genoeg te komen op het niveau ervoor
   (bijv. 1.000 m op Ruiter voor Eventing).
 - Tijdens een rit krijg je elke **500 m een bonus** van +0,25× (tot +2×).
+- Je **ruitersniveau** uit de opdrachten telt daar nog bij op.
 - Aan het einde van een rit worden je munten vermenigvuldigd en bijgeschreven.
 - Gevallen? Voor een paar munten kun je **doorgaan** (max. 3 keer per rit).
 
@@ -77,6 +99,9 @@ Het spel opent dan schermvullend als een eigen app met een icoon, werkt ook offl
 voortgang (munten, paarden, upgrades) op je telefoon.
 
 > Geen geluid? Zet de stille modus van je iPhone uit (schakelaar aan de zijkant).
+>
+> Loopt het niet soepel op een oudere iPhone? Zet in **Instellingen → Graphics** de kwaliteit op *normaal* of *laag*.
+> Het spel verlaagt de resolutie ook automatisch als het merkt dat het te zwaar wordt.
 
 ## Een echte App Store-app maken (optioneel)
 
@@ -116,10 +141,16 @@ www/
   icons/                app-iconen
   js/
     main.js             opstarten
-    game.js             spellogica, botsingen, camera
-    world.js            eindeloze baan, bochten, hindernissen, landschap
+    game.js             spellogica, botsingen, struikelen, de stier, camera, schaduwen
+    world.js            eindeloze baan, bochten, publiek, rivieren en watervallen
+    obstacles.js        hindernissen, nummerborden en power-ups
+    scenery.js          bomen, gras, bloemen, publiek en tenten
+    sky.js              lucht, wolken en heuvels aan de horizon
     horse.js            3D-paard met ruiter en animaties
-    ui.js               menu, stal, ruiters, upgrades, instellingen
+    bull.js             Brutus de stier
+    distractions.js     afleidingen die langs het scherm vliegen
+    missions.js         opdrachten en ruitersniveaus
+    ui.js               menu, stal, ruiters, upgrades, opdrachten, instellingen
     config.js           paarden, ruiters, moeilijkheden, prijzen
     audio.js            gesynthetiseerde geluiden en muziek
     input.js            vegen en toetsenbord

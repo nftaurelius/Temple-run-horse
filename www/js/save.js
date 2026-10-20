@@ -16,7 +16,7 @@ function defaults() {
     upgrades: { magnet: 0, double: 0, shield: 0, spurt: 0 },
     best: {}, // per moeilijkheid: { score, dist }
     unlockedDifficulties: DIFFICULTIES.filter((d) => !d.unlock).map((d) => d.id),
-    settings: { sound: true, music: true },
+    settings: { sound: true, music: true, quality: 'hoog' },
     stats: { runs: 0, distance: 0, jumps: 0 },
     tutorialDone: false,
   };

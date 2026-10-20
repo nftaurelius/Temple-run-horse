@@ -21,6 +21,7 @@
 <canvas id="game" aria-label="Spelwereld"></canvas>
 
 <div id="ui">
+  <div class="danger-vignette" data-bind="danger" aria-hidden="true"></div>
   <div class="toasts" data-bind="toasts" aria-live="polite"></div>
 
   <!-- Laadscherm -->
@@ -39,6 +40,11 @@
     </header>
     <div class="logo menu-logo"><span>Galop!</span><small>Cross Country Run</small></div>
     <div class="menu-bottom">
+      <button class="mission-strip ui-block" data-action="missions">
+        <span class="lvl-badge" data-bind="lvlNum">1</span>
+        <span class="ms-text"><b data-bind="lvlTitle">Beginner</b><small data-bind="msSummary">0 van 3 opdrachten</small></span>
+        <span class="ms-dots" data-bind="msDots"></span>
+      </button>
       <div class="difficulty ui-block">
         <button class="arrow-btn" data-action="diff-prev" aria-label="Vorige moeilijkheid">
           <svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg>
@@ -88,6 +94,7 @@
   <section id="pause" class="screen dim center-screen" hidden>
     <div class="card">
       <h2>Gepauzeerd</h2>
+      <div class="mission-list compact" data-bind="pauseMissions"></div>
       <div class="toggles">
         <button class="toggle" data-action="toggle-sound" data-bind="soundToggle">Geluid: aan</button>
         <button class="toggle" data-action="toggle-music" data-bind="musicToggle">Muziek: aan</button>
@@ -114,6 +121,8 @@
         <div class="earn-row total"><span>Verdiend</span><b><i class="coin-ico"></i><span data-bind="oEarned">0</span></b></div>
       </div>
       <p class="unlock-msg" data-bind="oUnlock" hidden></p>
+      <p class="unlock-msg level-msg" data-bind="oLevel" hidden></p>
+      <div class="mission-list compact" data-bind="overMissions"></div>
       <button class="btn btn-gold" data-action="continue" data-bind="oContinue" hidden>Doorgaan</button>
       <button class="btn btn-play" data-action="retry"><span>Opnieuw</span></button>
       <button class="btn btn-ghost" data-action="menu">Menu</button>
@@ -139,6 +148,28 @@
         <button class="btn btn-gold btn-buy" data-action="shop-buy" data-bind="shopBuy">Kies</button>
       </div>
       <div class="card-row" data-bind="shopList" role="listbox"></div>
+    </div>
+  </section>
+
+  <!-- Opdrachten -->
+  <section id="missions" class="screen" hidden>
+    <header class="topbar">
+      <button class="icon-btn" data-action="back" aria-label="Terug">
+        <svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg>
+      </button>
+      <h2>Opdrachten</h2>
+      <div class="coins-pill"><i class="coin-ico"></i><b data-bind="coins">0</b></div>
+    </header>
+    <div class="missions-body ui-block">
+      <div class="level-card">
+        <span class="lvl-badge big" data-bind="lvlNum">1</span>
+        <div>
+          <h3 data-bind="lvlTitle">Beginner</h3>
+          <p>Ruitersniveau · vermenigvuldiger <b data-bind="lvlMult">×1</b></p>
+        </div>
+      </div>
+      <div class="mission-list" data-bind="missionList"></div>
+      <p class="missions-note">Voltooi alle drie de opdrachten om een niveau omhoog te gaan. Elk niveau geeft +0,1× op je score en munten.</p>
     </div>
   </section>
 
@@ -168,6 +199,7 @@
         <button class="toggle" data-action="toggle-sound" data-bind="soundToggle">Geluid: aan</button>
         <button class="toggle" data-action="toggle-music" data-bind="musicToggle">Muziek: aan</button>
       </div>
+      <button class="toggle" data-action="toggle-quality" data-bind="qualityToggle">Graphics: hoog</button>
       <div class="howto">
         <h3>Besturing</h3>
         <ul>
@@ -177,6 +209,8 @@
           <li><b>Bij een bocht</b> veeg je de kant op van het bord.</li>
           <li>Op een computer: pijltjestoetsen of WASD.</li>
         </ul>
+        <h3>Pas op voor de stier</h3>
+        <p>Na een stukje breekt Brutus de stier los. Struikel je (balk geraakt, modder, tegen een boom aan schuren), dan komt hij dichterbij. Hoe verder je komt, hoe feller hij wordt.</p>
         <h3>Op je iPhone zetten</h3>
         <ol>
           <li>Open deze pagina in <b>Safari</b>.</li>

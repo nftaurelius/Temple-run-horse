@@ -1,5 +1,5 @@
 // Service worker: bewaart het spel zodat het ook zonder internet werkt.
-const CACHE = 'galop-v1';
+const CACHE = 'galop-v2';
 const FILES = [
   './',
   './index.html',
@@ -14,6 +14,12 @@ const FILES = [
   './js/main.js',
   './js/game.js',
   './js/world.js',
+  './js/obstacles.js',
+  './js/scenery.js',
+  './js/sky.js',
+  './js/bull.js',
+  './js/distractions.js',
+  './js/missions.js',
   './js/horse.js',
   './js/geo.js',
   './js/textures.js',

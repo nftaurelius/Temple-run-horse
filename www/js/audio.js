@@ -168,6 +168,121 @@ export class Sound {
     setTimeout(() => this.whinny(), 120);
   }
 
+  stumble() {
+    this.tone(150, 0.22, { type: 'sine', vol: 0.35, slideTo: 60 });
+    this.noiseBurst(0.25, { vol: 0.22, freq: 400, q: 0.6, type: 'lowpass' });
+    this.hoof(1.4);
+    setTimeout(() => this.hoof(1.1), 90);
+  }
+
+  squelch() {
+    this.noiseBurst(0.35, { vol: 0.25, freq: 300, sweepTo: 900, q: 3 });
+    this.tone(110, 0.25, { type: 'triangle', vol: 0.15, slideTo: 70 });
+  }
+
+  // Brullende stier: lage zaagtand met trilling.
+  bellow() {
+    if (!this.ready) return;
+    const t = this.ctx.currentTime;
+    const o = this.ctx.createOscillator();
+    const lfo = this.ctx.createOscillator();
+    const lg = this.ctx.createGain();
+    const f = this.ctx.createBiquadFilter();
+    const g = this.ctx.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(95, t);
+    o.frequency.linearRampToValueAtTime(140, t + 0.3);
+    o.frequency.exponentialRampToValueAtTime(70, t + 1.1);
+    lfo.frequency.value = 9;
+    lg.gain.value = 8;
+    lfo.connect(lg).connect(o.frequency);
+    f.type = 'lowpass';
+    f.frequency.value = 700;
+    f.Q.value = 4;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.3, t + 0.12);
+    g.gain.setValueAtTime(0.3, t + 0.7);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+    o.connect(f).connect(g).connect(this.sfx);
+    o.start(t);
+    lfo.start(t);
+    o.stop(t + 1.25);
+    lfo.stop(t + 1.25);
+  }
+
+  snort() {
+    this.noiseBurst(0.22, { vol: 0.28, freq: 900, sweepTo: 300, q: 1.2 });
+    this.noiseBurst(0.18, { vol: 0.2, freq: 700, sweepTo: 250, q: 1.2, at: 0.25 });
+  }
+
+  // Applaus en gejuich: veel korte klapjes plus een "hoe!" van het publiek.
+  cheer(intensity = 1) {
+    if (!this.ready) return;
+    const n = Math.floor(18 + 30 * intensity);
+    for (let i = 0; i < n; i++) {
+      this.noiseBurst(0.04, { vol: 0.05 * intensity, freq: 1500 + Math.random() * 2500, q: 1.5, at: Math.random() * 1.4 });
+    }
+    const t = this.ctx.currentTime;
+    for (let v = 0; v < 4; v++) {
+      const o = this.ctx.createOscillator();
+      const f = this.ctx.createBiquadFilter();
+      const g = this.ctx.createGain();
+      const base = 260 + Math.random() * 200;
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(base, t);
+      o.frequency.linearRampToValueAtTime(base * 1.35, t + 0.35);
+      o.frequency.linearRampToValueAtTime(base * 1.1, t + 0.9);
+      f.type = 'bandpass';
+      f.frequency.value = 900;
+      f.Q.value = 1.2;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.025 * intensity, t + 0.1);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 1.0);
+      o.connect(f).connect(g).connect(this.sfx);
+      o.start(t);
+      o.stop(t + 1.05);
+    }
+  }
+
+  birds() {
+    for (let i = 0; i < 6; i++) {
+      const f = 2600 + Math.random() * 1400;
+      this.tone(f, 0.08, { type: 'sine', vol: 0.06, slideTo: f * 1.3, at: i * 0.12 + Math.random() * 0.05 });
+    }
+    for (let i = 0; i < 8; i++) this.noiseBurst(0.05, { vol: 0.05, freq: 600, q: 0.8, at: i * 0.07 });
+  }
+
+  drone(dur = 4) {
+    if (!this.ready) return;
+    const t = this.ctx.currentTime;
+    const o = this.ctx.createOscillator();
+    const o2 = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = 'sawtooth';
+    o2.type = 'square';
+    o.frequency.value = 180;
+    o2.frequency.value = 183;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.03, t + 0.6);
+    g.gain.setValueAtTime(0.03, t + dur - 1);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g);
+    o2.connect(g);
+    g.connect(this.sfx);
+    o.start(t);
+    o2.start(t);
+    o.stop(t + dur);
+    o2.stop(t + dur);
+  }
+
+  rustle() {
+    for (let i = 0; i < 6; i++) this.noiseBurst(0.15, { vol: 0.06, freq: 3500, q: 0.6, at: i * 0.1 });
+  }
+
+  burner() {
+    this.noiseBurst(0.8, { vol: 0.08, freq: 500, q: 0.4, type: 'lowpass' });
+  }
+
   click() {
     this.tone(880, 0.06, { type: 'triangle', vol: 0.12 });
   }
