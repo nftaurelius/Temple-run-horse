@@ -816,3 +816,6 @@ svg { width: 24px; height: 24px; fill: currentColor; }
   -webkit-overflow-scrolling: touch;
 }
 .settings-body > .toggle { flex: none; }
+
+/* bocht is goed geveegd */
+.turn-hint.ok { color: #8be37a; animation: none; }

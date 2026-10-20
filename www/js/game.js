@@ -3,7 +3,7 @@
 
 import * as THREE from './lib/three.module.min.js';
 import {
-  LANE_WIDTH, CORNER, JUMP_HEIGHT, JUMP_TIME, DUCK_TIME, DIFFICULTIES, POWERUPS,
+  LANE_WIDTH, CORNER, OVERRUN, JUMP_HEIGHT, JUMP_TIME, DUCK_TIME, DIFFICULTIES, POWERUPS,
   CONTINUE_BASE_COST, CHASE_START, powerDuration, difficultyById, horseById, riderById,
 } from './config.js';
 import { World, yawOf } from './world.js';
@@ -208,7 +208,7 @@ export class Game {
       queuedTurn: null, inWater: false, invuln: 0, crashT: -1, crashReason: null, crashObstacle: null,
       magnet: 0, double: 0, shield: false, shieldT: 0, spurt: 0, stumbleT: 0,
       continues: 0, banked: 0, levelMult: levelMult(this.missions.level),
-      corr: new THREE.Vector3(), yawCorr: 0, yaw: yawOf(seg.dir),
+      corr: new THREE.Vector3(), yawCorr: 0, antic: 0, yaw: yawOf(seg.dir),
       pos: new THREE.Vector3(), prevPos: new THREE.Vector3(),
       horse: horseCfg, splashT: 0, hintShown: {}, cleanStart: 0, missionT: 0,
       stats: {
@@ -277,13 +277,21 @@ export class Game {
     const p = this.p;
     if (action === 'left' || action === 'right') {
       const t = action === 'left' ? 'L' : 'R';
-      const window = 13 + p.speed * 0.4;
-      if (p.seg.allows(t) && p.dist > p.seg.length - window) {
+      if (p.seg.allows(t) && p.dist >= this.turnZoneStart(p.seg)) {
+        // bocht vastleggen en meteen al richting de binnenbocht sturen
+        const changed = p.queuedTurn !== t;
+        p.queuedTurn = t;
+        const inner = Math.max(-1, Math.min(1, p.lane + (t === 'L' ? -1 : 1)));
+        if (inner !== p.lane) {
+          p.fromLane = p.lane;
+          p.lane = inner;
+        }
         if (p.dist >= p.seg.length) this.doTurn(t);
-        else p.queuedTurn = t;
-        this.ui.hideTurnHint();
+        else if (changed) this.sound.turn();
         return;
       }
+      // onthouden: net te vroeg geveegd telt alsnog als bocht zodra je de bochtzone in rijdt
+      p.lastSide = { t, time: p.time };
       const nl = Math.max(-1, Math.min(1, p.lane + (t === 'L' ? -1 : 1)));
       if (nl !== p.lane) {
         p.fromLane = p.lane;
@@ -295,6 +303,17 @@ export class Game {
     } else if (action === 'down') {
       this.duck();
     }
+  }
+
+  // Vanaf welk punt een veeg richting de bocht als bocht telt.
+  turnZoneStart(seg) {
+    return Math.max(seg.clearFrom ?? 0, seg.length - Math.max(34, this.p.speed * 2.3));
+  }
+
+  // Bij een bocht wordt een schuine veeg eerder als links/rechts gelezen.
+  inTurnZone() {
+    const p = this.p;
+    return this.state === 'playing' && p.dist >= this.turnZoneStart(p.seg) - 4;
   }
 
   jump() {
@@ -325,20 +344,23 @@ export class Game {
     const p = this.p;
     const w = this.world;
     const oldVisual = p.pos.clone();
-    const oldYaw = p.yaw + p.yawCorr;
+    const oldYaw = p.yaw + p.yawCorr + p.antic;
     const overshoot = Math.max(0, p.dist - p.seg.length);
+    const wasQueued = p.queuedTurn === t;
     const next = w.takeTurn(p.seg, t);
     p.seg = next;
     p.dist = overshoot;
     p.queuedTurn = null;
-    // zachte overgang van positie en kijkrichting
+    // zachte overgang van positie en kijkrichting (inclusief het alvast indraaien)
     const logical = next.toWorld(p.dist, p.latX, 0);
     p.corr.copy(oldVisual).setY(0).sub(logical);
     p.yaw = yawOf(next.dir);
+    p.antic = 0;
+    p.lastSide = null;
     p.yawCorr = angleDiff(oldYaw, p.yaw);
     w.ensureAhead(next, p.dist);
     p.stats.turns++;
-    this.sound.turn();
+    if (!wasQueued) this.sound.turn();
   }
 
   giveShield(silent = false) {
@@ -636,17 +658,21 @@ export class Game {
 
     // bochten
     const seg = p.seg;
-    const window = 13 + p.speed * 0.4;
+    if (!p.queuedTurn && p.lastSide && p.time - p.lastSide.time < 0.8 && seg.allows(p.lastSide.t) && p.dist >= this.turnZoneStart(seg)) {
+      p.queuedTurn = p.lastSide.t;
+      p.lastSide = null;
+      this.sound.turn();
+    }
     if (p.dist >= seg.length) {
       if (p.queuedTurn) this.doTurn(p.queuedTurn);
       else if (p.spurt > 0 || GOD) this.doTurn(seg.turn === 'T' ? (Math.random() < 0.5 ? 'L' : 'R') : seg.turn);
-      else if (p.dist >= seg.length + CORNER / 2 - 1.1) {
+      else if (p.dist >= seg.length + CORNER / 2 + OVERRUN - 1.2) {
         this.crash('turn');
         return;
       }
     }
-    const hintTurn = p.seg === seg && p.dist > seg.length - window && !p.queuedTurn && (this.diff.hints || !this.save.tutorialDone);
-    if (hintTurn) this.ui.showTurnHint(seg.turn);
+    const hintTurn = p.seg === seg && p.dist > this.turnZoneStart(seg) && (this.diff.hints || !this.save.tutorialDone);
+    if (hintTurn) this.ui.showTurnHint(seg.turn, p.queuedTurn);
     else this.ui.hideTurnHint();
 
     const cur = p.seg;
@@ -1052,7 +1078,14 @@ export class Game {
     p.seg.toWorld(p.dist, p.latX, 0, p.pos).add(p.corr);
     if (dt === 0) p.prevPos.copy(p.pos);
 
-    const yaw = p.yaw + p.yawCorr;
+    // na een goede veeg alvast de bocht in draaien, zodat je direct reactie ziet
+    let anticTarget = 0;
+    if (p.queuedTurn && this.state === 'playing') {
+      const toGo = p.seg.length - p.dist;
+      anticTarget = (p.queuedTurn === 'L' ? 1 : -1) * 0.5 * Math.max(0.25, Math.min(1, 1 - toGo / 10));
+    }
+    p.antic += (anticTarget - p.antic) * (1 - Math.exp(-9 * dt));
+    const yaw = p.yaw + p.yawCorr + p.antic;
     const lean = (p.lane * LANE_WIDTH - p.latX) / LANE_WIDTH;
     const h = this.horse;
     h.root.position.copy(p.pos).setY(p.y);
@@ -1088,7 +1121,7 @@ export class Game {
 
   updateCamera(dt) {
     const p = this.p;
-    const yaw = p.yaw + p.yawCorr;
+    const yaw = p.yaw + p.yawCorr + p.antic;
     const fwd = tmpV.set(-Math.sin(yaw), 0, -Math.cos(yaw));
     const desiredPos = new THREE.Vector3();
     const desiredLook = new THREE.Vector3();

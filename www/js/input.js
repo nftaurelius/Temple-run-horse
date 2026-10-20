@@ -5,6 +5,7 @@ const SWIPE_MIN = 26; // pixels
 export class Input {
   constructor(target) {
     this.handlers = [];
+    this.preferHorizontal = () => false;
     this.start = null;
     this.fired = false;
 
@@ -62,7 +63,9 @@ export class Input {
   trySwipe(dx, dy) {
     if (Math.max(Math.abs(dx), Math.abs(dy)) < SWIPE_MIN) return;
     this.fired = true;
-    if (Math.abs(dx) > Math.abs(dy)) this.emit(dx > 0 ? 'right' : 'left');
+    // bij een bocht telt een schuine veeg sneller als links/rechts
+    const ratio = this.preferHorizontal() ? 0.55 : 1;
+    if (Math.abs(dx) > Math.abs(dy) * ratio) this.emit(dx > 0 ? 'right' : 'left');
     else this.emit(dy > 0 ? 'down' : 'up');
   }
 

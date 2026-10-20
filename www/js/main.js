@@ -26,6 +26,7 @@ ui.attach(game, sound);
 
 const input = new Input(document.body);
 input.on((a) => game.input(a));
+input.preferHorizontal = () => game.inTurnZone();
 
 // Audio mag op iOS pas starten na een aanraking.
 const unlock = () => {

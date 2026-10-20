@@ -4,6 +4,7 @@ export const LANE_WIDTH = 2.1;
 export const LANES = [-1, 0, 1];
 export const TRACK_HALF = LANE_WIDTH * 1.5 + 0.35; // halve breedte van het pad
 export const CORNER = TRACK_HALF * 2; // breedte van een bochtvak
+export const OVERRUN = 2.6; // extra uitloop voorbij de bocht voordat de haag komt
 
 export const JUMP_HEIGHT = 2.0;
 export const JUMP_TIME = 0.78;

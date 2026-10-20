@@ -300,10 +300,13 @@ export class UI {
     setTimeout(() => el.remove(), 1900);
   }
 
-  showTurnHint(turn) {
+  showTurnHint(turn, chosen = null) {
     const el = this.$('turnHint')[0];
-    const text = turn === 'L' ? '◀ Bocht links' : turn === 'R' ? 'Bocht rechts ▶' : '◀ Kies een kant ▶';
+    const text = chosen
+      ? (chosen === 'L' ? '◀ Bocht links ✓' : 'Bocht rechts ▶ ✓')
+      : turn === 'L' ? '◀ Bocht links' : turn === 'R' ? 'Bocht rechts ▶' : '◀ Kies een kant ▶';
     if (el.textContent !== text) el.textContent = text;
+    el.classList.toggle('ok', !!chosen);
     el.hidden = false;
   }
 

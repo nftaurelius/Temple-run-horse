@@ -1,7 +1,7 @@
 // De eindeloze cross-country baan: segmenten met bochten, hindernissen, munten, publiek en landschap.
 
 import * as THREE from './lib/three.module.min.js';
-import { LANE_WIDTH, TRACK_HALF, CORNER, JUMP_TIME } from './config.js';
+import { LANE_WIDTH, TRACK_HALF, CORNER, OVERRUN, JUMP_TIME } from './config.js';
 import { GeoBuilder, makeRng, addWind, windUniforms } from './geo.js';
 import * as TX from './textures.js';
 import { OBST, W, cached, powerupGeo, numberMaterial } from './obstacles.js';
@@ -295,15 +295,17 @@ export class World {
     const excl = []; // gebieden zonder bomen (lokaal: {s, lat, r} of {band})
 
     // bocht-afsluiting en richtingbord
-    const endS = L + CORNER / 2;
+    const endS = L + CORNER / 2 + OVERRUN;
     sb.add(B.box, COL.hedge, [0, 0.75, -(endS + 0.6)], [0, 0, 0], [CORNER + 3.2, 1.5, 1.0], { grad: [0.6, 1.0] });
     this.hedgeBumps(sb, -(CORNER / 2 + 1.6), CORNER / 2 + 1.6, -(endS + 0.6), true);
     if (seg.turn !== 'T') {
       const closed = seg.turn === 'L' ? 1 : -1;
       const x = closed * (CORNER / 2 + 0.6);
-      sb.add(B.box, COL.hedge, [x, 0.75, -L], [0, 0, 0], [1.0, 1.5, CORNER + 1.2], { grad: [0.6, 1.0] });
-      this.hedgeBumps(sb, -L - CORNER / 2, -L + CORNER / 2, x, false);
+      sb.add(B.box, COL.hedge, [x, 0.75, -(L + OVERRUN / 2)], [0, 0, 0], [1.0, 1.5, CORNER + 1.2 + OVERRUN], { grad: [0.6, 1.0] });
+      this.hedgeBumps(sb, -L - CORNER / 2 - OVERRUN, -L + CORNER / 2, x, false);
     }
+    // uitloopstrook tussen bocht en haag
+    sb.add(B.box, 0xb08a58, [0, 0.006, -(L + CORNER / 2 + OVERRUN / 2)], [0, 0, 0], [CORNER, 0.01, OVERRUN], { grad: [0.9, 1.0] });
     const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 0.95), this.mat.signs[seg.turn]);
     sign.position.set(0, 2.15, -(endS + 0.05));
     sign.userData.ownGeo = true;
@@ -715,6 +717,8 @@ export class World {
       s += used + gap;
     }
     seg.obstacles.sort((a, b) => a.s - b.s);
+    // vanaf hier geen hindernissen meer: elke veeg richting de bocht telt als bocht
+    seg.clearFrom = Math.max(0, ...seg.obstacles.map((o) => o.s + (o.depth || 0) / 2 + 1.5), ...seg.waters.map((w) => w[1] + 1.5));
     this.progress += L;
   }
 

@@ -30,7 +30,7 @@ Het spel draait volledig in de browser (Three.js, WebGL) en is te installeren op
 - **Hooibalen**: springen of uitwijken.
 - **Waterbak**: je kunt erdoorheen, maar je gaat langzamer.
 - **Modderpoel**: springen, anders struikel je.
-- **Bocht of T-splitsing**: veeg op tijd de goede kant op, anders weigert je paard bij de haag.
+- **Bocht of T-splitsing**: veeg de goede kant op. Dat mag al zodra je de laatste hindernis voor de bocht voorbij bent; je paard gaat dan meteen naar de binnenbocht en draait alvast in. Veeg je helemaal niet, dan weigert je paard bij de haag.
 
 Elke sprong heeft een **nummerbord** en een rode vlag rechts en een witte vlag links, net als op een echt cross-country parcours.
 
